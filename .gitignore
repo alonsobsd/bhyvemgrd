@@ -1,0 +1,16 @@
+bhyvemgrd
+heap.trc
+src/bhyvemgrd
+src/backup
+src/backup/*
+src/heap.trc
+src/lib
+src/lib/*
+*.res
+*.compiled
+*.o
+*.ppu
+*.res
+*.compiled
+*.o
+*.lps
