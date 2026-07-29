@@ -1,0 +1,37 @@
+name: bhyvemgrd test
+
+on:
+  push:
+    paths-ignore:
+      - '**/LICENSE'
+      - '**/README.md'
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
+      - main
+      
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: A job to run test in FreeBSD
+    steps:
+    - uses: actions/checkout@v7
+    - name: bhyvemgrd testing on FreeBSD VM
+      id: test
+      uses: vmactions/freebsd-vm@v1.5.2
+      with:
+        release: "15.1"
+        usesh: true
+        prepare: |
+          sed -i "" -e 's|quarterly|latest|g' /etc/pkg/FreeBSD.conf        
+          export IGNORE_OSVERSION=yes
+          pkg update -f
+          pkg install -y pcre2
+          pkg install -y fpc
+
+        run: |
+          set -e -x
+          chmod +x build.sh
+           ./build.sh release
