@@ -1,2 +1,2 @@
 # Bhyvemgrd
-Bhyvemgrd exposes a JSON-based IPC interface over a UNIX domain socket, allowing the bhyvemgr client to request privileged operations required for bhyve virtual machines, execute system-level tasks, monitor VM process states, and receive asynchronous state notifications.
+Bhyvemgrd exposes a JSON-based IPC interface over a UNIX domain socket, allowing the [bhyvemgr](https://github.com/alonsobsd/bhyvemgr) client to request privileged operations required for bhyve virtual machines, execute system-level tasks, monitor VM process states, and receive asynchronous state notifications.
