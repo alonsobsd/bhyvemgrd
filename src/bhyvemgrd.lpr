@@ -69,11 +69,11 @@ begin
 
   SetOsreldate(Trim(CheckSysctl('kern.osreldate')));
 
-  if FileExists(CONFIG_FILE) then
-    LoadConfig(CONFIG_FILE)
+  if FileExists(CONFIG_FILE) and FileExists(COMMON_CONFIG_FILE) then
+    LoadConfig(CONFIG_FILE, COMMON_CONFIG_FILE)
   else
   begin
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Configuration file not exists.');
+    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : The '+CONFIG_FILE+' or '+COMMON_CONFIG_FILE+' configuration files do not exist.');
     Halt;
   end;
 
@@ -95,7 +95,7 @@ begin
 
   if not CheckKernelModule('vmm') or not CheckKernelModule('nmdm') or not CheckKernelModule('mac_do') then
   begin
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd cannot start. Check if vmm, nmdm and mac_do kernel modules were loaded.');
+    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd cannot start. Check that the vmm, nmdm, and mac_do kernel modules are loaded.');
     Exit;
   end;
 

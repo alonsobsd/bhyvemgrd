@@ -34,8 +34,8 @@ unit unit_configuration;
 
 interface
 
-procedure LoadConfig(const PathFile: String);
-function ReloadConfig(const PathFile: String):Boolean;
+procedure LoadConfig(const PathFile: String; const CommonPathFile: String);
+function ReloadConfig(const PathFile: String; const CommonPathFile: String):Boolean;
 
 function DebugMode: String;
 function RootMode: String;
@@ -56,34 +56,39 @@ type
 var
   FConfig: TConfiguration;
 
-procedure LoadConfig(const PathFile: String);
+procedure LoadConfig(const PathFile: String; const CommonPathFile: String);
 var
   ConfigFile: TIniFile;
+  CommonConfigFile : TIniFile;
 begin
   ConfigFile := TIniFile.Create(PathFile);
+  CommonConfigFile := TIniFile.Create(CommonPathFile);
+
   try
-    FConfig.DebugMode := ConfigFile.ReadString('general','debug','no');
-    FConfig.RootMode := ConfigFile.ReadString('general','rootmode','mdo');
-    FConfig.VmPath := ConfigFile.ReadString('general','vm_path','/usr/local/bhyvemgr');
+    FConfig.DebugMode := ConfigFile.ReadString('daemon','debug','no');
+    FConfig.RootMode := ConfigFile.ReadString('daemon','rootmode','mdo');
+    FConfig.VmPath := CommonConfigFile.ReadString('common','vm_path','/usr/local/bhyvemgr');
   finally
     ConfigFile.Free;
+    CommonConfigFile.Free;
   end;
 end;
 
-function ReloadConfig(const PathFile: String):Boolean;
+function ReloadConfig(const PathFile: String; const CommonPathFile: String):Boolean;
 var
   ConfigFile: TIniFile;
+  CommonConfigFile : TIniFile;
   TmpVmPath : String;
 begin
   Result:=True;
 
   ConfigFile := TIniFile.Create(PathFile);
-
+  CommonConfigFile := TIniFile.Create(CommonPathFile);
   try
-    FConfig.DebugMode := ConfigFile.ReadString('general','debug','no');
-    FConfig.RootMode := ConfigFile.ReadString('general','rootmode','mdo');
+    FConfig.DebugMode := ConfigFile.ReadString('daemon','debug','no');
+    FConfig.RootMode := ConfigFile.ReadString('daemon','rootmode','mdo');
 
-    TmpVmPath:=ConfigFile.ReadString('general','vm_path','/usr/local/bhyvemgr');
+    TmpVmPath:=CommonConfigFile.ReadString('common','vm_path','/usr/local/bhyvemgr');
 
     if VmPath <> TmpVmPath then
     begin
@@ -92,6 +97,7 @@ begin
     end;
   finally
     ConfigFile.Free;
+    CommonConfigFile.Free;
   end;
 end;
 

@@ -141,7 +141,7 @@ begin
        begin
          ReloadRequested := False;
 
-         if not ReloadConfig(CONFIG_FILE) then
+         if not ReloadConfig(CONFIG_FILE, COMMON_CONFIG_FILE) then
            WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Reload vm_path rejected. A complete restart is needed for it');
        end;
 

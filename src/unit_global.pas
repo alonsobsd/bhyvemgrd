@@ -70,6 +70,7 @@ const
   SYSCTL_CMD = '/sbin/sysctl';
   ZFS_CMD = '/sbin/zfs';
   { Configuration file path }
+  COMMON_CONFIG_FILE = '/usr/local/etc/bhyvemgrd/common.conf';
   CONFIG_FILE = '/usr/local/etc/bhyvemgrd/daemon.conf';
   { Socket file path }
   SOCKET_FILE = '/var/run/bhyvemgrd/bhyvemgrd.sock';

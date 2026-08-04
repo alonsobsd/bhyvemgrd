@@ -62,6 +62,39 @@ implementation
 uses
   SysUtils, process, unit_configuration, unit_util, unit_global;
 
+function AttachToBridge(Id : String; Params: TJSONObject): TJSONObject;
+var
+  BridgeName, DeviceName : String;
+  root_cmd : String;
+  output : String;
+  status : Boolean;
+  parameters : TStringArray;
+begin
+  status:=False;
+  root_cmd:=MDO_CMD;
+
+  BridgeName := Params.Get('bridge','');
+  DeviceName := Params.Get('device','');
+
+  parameters:=[IFCONFIG_CMD, BridgeName, 'addm', DeviceName];
+
+  if FileExists(root_cmd) then
+  begin
+    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+    if not status then
+      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : AttachDeviceToBridge : '+ DeviceName+' : '+output);
+  end;
+
+  Result := TJSONObject.Create;
+  Result.Add('id', Id);
+  Result.Add('type', 'task');
+  Result.Add('success', status);
+  Result.Add('action', 'network.attach_bridge');
+  Result.Add('bridge', BridgeName);
+  Result.Add('device', DeviceName);
+end;
+
 function Chmod(Id : String; Params: TJSONObject): TJSONObject;
 var
   Path, Mode : String;
@@ -207,39 +240,6 @@ begin
   Result.Add('success',status);
   Result.Add('action', 'fs.rmdir');
   Result.Add('path', DirectoryName);
-end;
-
-function AttachToBridge(Id : String; Params: TJSONObject): TJSONObject;
-var
-  BridgeName, DeviceName : String;
-  root_cmd : String;
-  output : String;
-  status : Boolean;
-  parameters : TStringArray;
-begin
-  status:=False;
-  root_cmd:=MDO_CMD;
-
-  BridgeName := Params.Get('bridge','');
-  DeviceName := Params.Get('device','');
-
-  parameters:=[IFCONFIG_CMD, BridgeName, 'addm', DeviceName];
-
-  if FileExists(root_cmd) then
-  begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
-
-    if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : AttachDeviceToBridge : '+ DeviceName+' : '+output);
-  end;
-
-  Result := TJSONObject.Create;
-  Result.Add('id', Id);
-  Result.Add('type', 'task');
-  Result.Add('success', status);
-  Result.Add('action', 'network.attach_bridge');
-  Result.Add('bridge', BridgeName);
-  Result.Add('device', DeviceName);
 end;
 
 function CreateNetworkDevice(Id : String; Params: TJSONObject): TJSONObject;
@@ -450,7 +450,7 @@ end;
 
 function KillPid(Id : String; Params: TJSONObject): TJSONObject;
 var
-  Signal, PId : String;
+  Signal, Pid : String;
   root_cmd : String;
   output : String;
   status : Boolean;
@@ -460,7 +460,7 @@ begin
   root_cmd:=MDO_CMD;
 
   Signal := Params.Get('signal','');
-  Pid := Params.Get('pid','');
+  Pid := Params.Get('pid', '');
 
   parameters:=[KILL_CMD, Signal, Pid];
 
