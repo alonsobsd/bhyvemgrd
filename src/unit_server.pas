@@ -44,7 +44,7 @@ uses
 implementation
 
 uses
-  unit_configuration, unit_distpacher, unit_vmmanager, unit_global;
+  unit_configuration, unit_distpacher, unit_vmmanager, unit_global, unit_util;
 
 {$I version.inc}
 
@@ -56,7 +56,7 @@ var
 procedure SendMessage(const S: String);
 begin
   if DebugMode = 'yes' then
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+S);
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+S);
 
   OutputBuffer := OutputBuffer + S + LineEnding;
 end;
@@ -107,8 +107,8 @@ begin
   FSocket := -1;
 
   try
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd version : v'+ APP_VERSION);
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd website : '+ APP_WEBSITE);
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd version : v'+ APP_VERSION);
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd website : '+ APP_WEBSITE);
 
     if FileExists(SOCKET_FILE) then
       DeleteFile(SOCKET_FILE);
@@ -122,7 +122,7 @@ begin
 
     if fpBind(ServerSock, @Addr, SizeOf(Addr.sun_family) + StrLen(@Addr.sun_path) + 1) <> 0 then
     begin
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server stopped');
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server stopped : Cannot create socket');
       Halt;
     end;
 
@@ -131,7 +131,7 @@ begin
 
     fpListen(ServerSock, 20);
 
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server started');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server started');
 
     while IsRunning do
     begin
@@ -142,7 +142,7 @@ begin
          ReloadRequested := False;
 
          if not ReloadConfig(CONFIG_FILE, COMMON_CONFIG_FILE) then
-           WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Reload vm_path rejected. A complete restart is needed for it');
+           LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server warning : Reload vm_path rejected. A complete restart is needed for it');
        end;
 
        if StopRequested then
@@ -154,7 +154,7 @@ begin
          end
          else
          begin
-           WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Stop rejected. Active virtual machine threads : ', ActiveThreads);
+           LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server warning : Stop rejected because there are active virtual machine threads : '+ ActiveThreads.ToString);
 
            StopRequested := False;
          end;
@@ -167,9 +167,11 @@ begin
         if ClientSock >= 0 then
         begin
           FSocket := ClientSock;
-            WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Client is connected');
-            WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Send initial virtual machine states list to client');
-            SendMessage(VmList);
+
+          LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Client is connected');
+          LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Send initial virtual machine states list to client');
+
+          SendMessage(VmList);
         end;
 
         Continue;
@@ -193,7 +195,7 @@ begin
         if fpgeterrno = ESysEINTR then
             Continue;
 
-        WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Socket error : ', fpgeterrno);
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Socket error : '+ fpgeterrno.ToString);
 
         fpClose(ClientSock);
         ClientSock := -1;
@@ -211,7 +213,7 @@ begin
 
         if task_action = EmptyStr then
         begin
-          WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Client is disconnected');
+          LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Client is disconnected');
 
           fpClose(ClientSock);
           ClientSock := -1;
@@ -235,7 +237,7 @@ begin
       end;
     end;
   finally
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Stopping server');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Stopping server');
 
     if ClientSock >= 0 then
       fpClose(ClientSock);
@@ -274,7 +276,7 @@ end;
 procedure ServerToClientMessage(const JSON: String);
 begin
   if DebugMode = 'yes' then
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+JSON);
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+JSON);
 
   SendMessage(JSON);
 end;

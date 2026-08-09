@@ -44,6 +44,7 @@ function CheckVmRunning(const VmName: String): Integer;
 function GetPidValue(const Pattern: String): Integer;
 function GetVmNameList(const VmPath: String): String;
 function LoadKernelModule(const Module: String): Boolean;
+procedure LogMessage(const Message : String);
 
 implementation
 
@@ -64,7 +65,7 @@ begin
     if status then
       Result:=status
     else
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CheckKernelModule : '+ Module+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CheckKernelModule : '+ Module+' : '+output);
   end;
 end;
 
@@ -82,7 +83,7 @@ begin
     if status then
       Result:=output
     else
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CheckSysCtl : '+ Name+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CheckSysCtl : '+ Name+' : '+output);
   end;
 end;
 
@@ -173,7 +174,7 @@ begin
     else
     begin
       if not (output.IsEmpty) then
-        WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : GetPidValue : '+output);
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : GetPidValue : '+output);
     end;
   end;
 end;
@@ -221,10 +222,14 @@ begin
     if status then
       Result:=status
     else
-    begin
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : LoadKernelModule : '+Module+' : '+output);
-    end;
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : LoadKernelModule : '+Module+' : '+output);
   end;
+end;
+
+procedure LogMessage(const Message: String);
+begin
+  WriteLn(Message);
+  Flush(Output);
 end;
 
 end.

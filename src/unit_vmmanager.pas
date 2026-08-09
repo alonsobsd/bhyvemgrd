@@ -160,7 +160,7 @@ begin
 
   Result := TJSONObject.Create;
 
-  if VmExists(VmName) then
+  if not VmExists(VmName) then
   begin
     VirtualMachine.Name := VmName;
     VirtualMachine.State := vmPowerOff;

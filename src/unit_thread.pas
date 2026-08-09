@@ -65,7 +65,7 @@ type
 implementation
 
 uses
-  unit_configuration ,process;
+  unit_configuration, unit_util, process;
 
 { VmThread }
 
@@ -126,7 +126,7 @@ begin
             AppState:=vmException;
             ExitStatus:=6;
             ErrorMessage:=AppProcessOutput.Text;
-            Write('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : vmException : '+ErrorMessage);
+            LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : vmException : '+ErrorMessage);
           end;
 
         Synchronize(@Showstatus);
@@ -138,7 +138,7 @@ begin
         ExitStatus:=6;
         ErrorMessage:=E.Message;
 
-        Write('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : vmException : '+ErrorMessage);
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : vmException : '+ErrorMessage);
 
         Synchronize(@Showstatus);
       end;

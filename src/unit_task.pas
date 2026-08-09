@@ -83,7 +83,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : AttachDeviceToBridge : '+ DeviceName+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : AttachDeviceToBridge : '+ DeviceName+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -117,7 +117,7 @@ begin
 
     if not status then
     begin
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Chmod : '+ Path+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Chmod : '+ Path+' : '+output);
     end;
   end;
 
@@ -132,7 +132,7 @@ end;
 
 function Chown(Id : String; Params: TJSONObject): TJSONObject;
 var
-  Path, Username : String;
+  Path, Username, Groupname : String;
   root_cmd : String;
   output : String;
   status : Boolean;
@@ -142,9 +142,10 @@ begin
   root_cmd:=MDO_CMD;
 
   Path := Params.Get('path','');
-  Username := Params.Get('username','');
+  Username := Params.Get('username','root');
+  Groupname := Params.Get('groupname','wheel');
 
-  parameters:=[CHOWN_CMD, UserName+':', Path];
+  parameters:=[CHOWN_CMD, UserName+':'+Groupname, Path];
 
   if FileExists(root_cmd) then
   begin
@@ -152,7 +153,7 @@ begin
 
     if not status then
     begin
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ChownDir : '+ Path+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ChownDir : '+ Path+' : '+output);
     end;
   end;
 
@@ -167,7 +168,7 @@ end;
 
 function Mkdir(Id : String; Params: TJSONObject): TJSONObject;
 var
-  DirMode, UserName, DirectoryPath : String;
+  DirMode, UserName, GroupName, DirectoryPath : String;
   root_cmd : String;
   output : String;
   status : Boolean;
@@ -177,17 +178,18 @@ begin
   root_cmd:=MDO_CMD;
 
   DirMode := Params.Get('mode','');
-  Username := Params.Get('username','');
+  UserName := Params.Get('username','');
+  GroupName := Params.Get('groupname','');
   DirectoryPath := Params.Get('directory','');
 
-  parameters:=[INSTALL_CMD, '-d', '-m', DirMode, '-o', UserName, DirectoryPath];
+  parameters:=[INSTALL_CMD, '-d', '-m', DirMode, '-o', UserName, '-g', GroupName, DirectoryPath];
 
   if FileExists(INSTALL_CMD) and FileExists(root_cmd) and not DirectoryExists(DirectoryPath) then
   begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CreateDirectory : '+ DirectoryPath+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CreateDirectory : '+ DirectoryPath+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -231,7 +233,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RemoveDirectory : '+DirectoryName+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RemoveDirectory : '+DirectoryName+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -263,7 +265,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+VmName+' VM : CreateNetworkDevice : '+ DeviceName+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+VmName+' VM : CreateNetworkDevice : '+ DeviceName+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -294,7 +296,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyNetworkInterface : '+ IfName+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyNetworkInterface : '+ IfName+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -339,7 +341,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfLoadRules : '+ RuleType+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfLoadRules : '+ RuleType+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -399,7 +401,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfUnLoadRules : '+ RulesType+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfUnLoadRules : '+ RulesType+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -436,7 +438,7 @@ begin
     else
     begin
       if not (output.IsEmpty) then
-        WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : GetPidValue : '+output);
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : GetPidValue : '+output);
     end;
   end;
 
@@ -469,7 +471,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut, poUsePipes]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : KillPid : '+Pid+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : KillPid : '+Pid+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -493,16 +495,16 @@ begin
 
   Service := Params.Get('service','');
 
-  parameters:=[SERVICE_CMD, Service, 'restart'];
+  parameters:=[SERVICE_CMD, Service, 'reload'];
 
   if (FileExists(SERVICE_CMD)) and (FileExists(root_cmd)) then
   begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : OK')
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : OK')
     else
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -533,7 +535,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyVirtualMachine : '+VmName+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyVirtualMachine : '+VmName+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -581,7 +583,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateDataset : '+  ZfsPath+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateDataset : '+  ZfsPath+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -616,7 +618,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsSetPropertyValue : '+ ZfsProperty+'='+ZfsValue+' : '+ZfsPath+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsSetPropertyValue : '+ ZfsProperty+'='+ZfsValue+' : '+ZfsPath+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -664,7 +666,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsDestroy : '+ ZfsPath+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsDestroy : '+ ZfsPath+' : '+output);
   end;
 
   Result := TJSONObject.Create;
@@ -708,7 +710,7 @@ begin
     status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
     if not status then
-      WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateZvol : '+ ZfsPath+' : '+output);
+      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateZvol : '+ ZfsPath+' : '+output);
   end;
 
   Result := TJSONObject.Create;

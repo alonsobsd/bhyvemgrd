@@ -73,19 +73,19 @@ begin
     LoadConfig(CONFIG_FILE, COMMON_CONFIG_FILE)
   else
   begin
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : The '+CONFIG_FILE+' or '+COMMON_CONFIG_FILE+' configuration files do not exist.');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : The '+CONFIG_FILE+' or '+COMMON_CONFIG_FILE+' configuration files do not exist.');
     Halt;
   end;
 
   if not (RootMode = 'mdo') then
   begin
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RootMode value is not valid.');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RootMode value is not valid.');
     Halt;
   end;
 
   if (ExpandFileName(VmPath) = DirectorySeparator) or not (VmPath.Contains('/bhyvemgr')) then
   begin
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : VmPath value is not valid.');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : VmPath value is not valid.');
     Halt;
   end;
 
@@ -95,7 +95,7 @@ begin
 
   if not CheckKernelModule('vmm') or not CheckKernelModule('nmdm') or not CheckKernelModule('mac_do') then
   begin
-    WriteLn('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd cannot start. Check that the vmm, nmdm, and mac_do kernel modules are loaded.');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd cannot start. Check that the vmm, nmdm, and mac_do kernel modules are loaded.');
     Exit;
   end;
 
