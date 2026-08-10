@@ -68,7 +68,7 @@ begin
   if OutputBuffer = EmptyStr then
     Exit;
 
-  Sent := fpSend(FSocket, @OutputBuffer[1], Length(OutputBuffer), MSG_DONTWAIT);
+  Sent := fpSend(FSocket, @OutputBuffer[1], Length(OutputBuffer), MSG_DONTWAIT or MSG_NOSIGNAL);
 
   if Sent > 0 then
     Delete(OutputBuffer, 1, Sent);
