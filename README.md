@@ -35,4 +35,6 @@ Both files are stored at **/usr/local/etc/bhyvemgrd** directory.
 # service bhyvemgrd start
 ```
 # Note
-The bhyvemgrd daemon only can be used by bhyvemgr >= 2.0.0
+- The bhyvemgrd daemon only can be used by bhyvemgr >= 2.0.0
+- Changes in **/usr/local/etc/bhyvmgrd/daemon.conf** can be reload using **service bhyvemgrd reload**
+- A **service bhyvemgrd restart** is not allowed if you have virtual machines running in that time
