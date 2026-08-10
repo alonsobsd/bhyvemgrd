@@ -34,7 +34,7 @@ Both files are stored at **/usr/local/etc/bhyvemgrd** directory.
 # service bhyvemgrd enable
 # service bhyvemgrd start
 ```
-# Note
+# Notes
 - The bhyvemgrd daemon only can be used by bhyvemgr >= 2.0.0
 - Start bhyvemgrd service only after bhyvemgr generated gui.conf and common.conf files. Othwerwise, it will not start. Look at **/var/log/bhyvemgrd.log** for the reason
 - Changes in **/usr/local/etc/bhyvmgrd/daemon.conf** can be reload using **service bhyvemgrd reload**
