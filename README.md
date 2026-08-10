@@ -39,3 +39,4 @@ Both files are stored at **/usr/local/etc/bhyvemgrd** directory.
 - Start bhyvemgrd service only after bhyvemgr generated gui.conf and common.conf files. Othwerwise, it will not start. Look at **/var/log/bhyvemgrd.log** for the reason
 - Changes in **/usr/local/etc/bhyvmgrd/daemon.conf** can be reload using **service bhyvemgrd reload**
 - A **service bhyvemgrd restart** is not allowed if you have virtual machines running in that time
+- Don't forget add the user that you use for run bhyvemgr GUI to bhyvemgrd group **pw groupmod bhyvemgrd -m your_user**
