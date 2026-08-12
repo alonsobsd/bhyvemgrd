@@ -15,7 +15,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: A job to run test in FreeBSD
+    name: A job to run tests in FreeBSD
     steps:
     - uses: actions/checkout@v7
     - name: bhyvemgrd testing on FreeBSD VM amd64
@@ -36,7 +36,7 @@ jobs:
           set -e -x
           chmod +x build.sh
            ./build.sh release
-               - uses: actions/checkout@v7
+               
     - name: bhyvemgrd testing on FreeBSD VM aarch64
       id: test2
       uses: vmactions/freebsd-vm@v1.5.3
