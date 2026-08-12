@@ -275,9 +275,6 @@ end;
 
 procedure ServerToClientMessage(const JSON: String);
 begin
-  if DebugMode = 'yes' then
-    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+JSON);
-
   SendMessage(JSON);
 end;
 

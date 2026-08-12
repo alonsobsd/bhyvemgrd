@@ -242,6 +242,7 @@ var
   i : Integer;
   VirtualMachine  : TVmInfo;
   VirtualMachineJson : TJSONObject;
+  EventType: String;
 begin
   i := FVirtualMachines.IndexOf(VmName);
 
@@ -249,7 +250,8 @@ begin
     Exit;
 
   try
-    InterlockedDecrement(ActiveThreads);
+    if not (VmState = vmRebooted) then
+      InterlockedDecrement(ActiveThreads);
 
     VirtualMachineJson:=TJSONObject.Create;
 
@@ -287,12 +289,20 @@ function VmStart(Params:TJSONObject):TJSONObject;
 var
   i : Integer;
   VmName : String;
+  IsRebooting : String;
+  EventType : String;
   VirtualMachine : TVmInfo;
   SuccessCode : Boolean;
   MyVmThread: VmThread;
 begin
   SuccessCode := False;
   VmName := Params.Get('vmname','');
+  IsRebooting := Params.Get('isrebooting', EmptyStr);
+
+  if not (IsRebooting = 'True') then
+    EventType:='vm_state_init'
+  else
+    EventType:='vm_state_keep';
 
   Result := TJSONObject.Create;
 
@@ -313,7 +323,8 @@ begin
         VirtualMachine.State := vmRunning;
         FVirtualMachines.Data[i] := VirtualMachine;
 
-        InterlockedIncrement(ActiveThreads);
+        if EventType = 'vm_state_init' then
+          InterlockedIncrement(ActiveThreads);
 
         SuccessCode := True;
       end;
@@ -322,7 +333,7 @@ begin
 
   Result.Add('success', SuccessCode);
   Result.Add('type', 'event');
-  Result.Add('event', 'vm_state_init');
+  Result.Add('event', EventType);
   Result.Add('vmname', VmName);
 end;
 
