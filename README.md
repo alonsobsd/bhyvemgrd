@@ -1,5 +1,5 @@
 # Bhyvemgrd
-Bhyvemgrd exposes a JSON-based IPC interface over a UNIX domain socket, allowing the [bhyvemgr](https://github.com/alonsobsd/bhyvemgr) client to request privileged operations required for bhyve virtual machines, execute system-level tasks, monitor VM process states, and receive asynchronous state notifications.
+Bhyvemgrd exposes a JSON-based IPC interface over a UNIX domain socket, allowing the [bhyvemgr](https://github.com/alonsobsd/bhyvemgr) client to request privileged operations required for bhyve virtual machines, execute system-level tasks, monitor VM process states, and receive asynchronous state notifications. Currently it supports amd64 and aarch64 on FreeBSD.
 
 # Dependencies
 Almost all FreeBSD versions have a complete support for use [mdo](https://man.freebsd.org/cgi/man.cgi?query=mdo&apropos=0&sektion=0&manpath=FreeBSD+14.4-RELEASE&format=html) tool and [mac_do](https://man.freebsd.org/cgi/man.cgi?query=mac_do&apropos=0&sektion=0&manpath=FreeBSD+14.4-RELEASE&format=html). Bhyvemgrd uses mac_do/mdo for execute commands with root credentials but it runs using an unpriviliged user.
