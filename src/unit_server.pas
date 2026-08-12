@@ -142,7 +142,9 @@ begin
          ReloadRequested := False;
 
          if not ReloadConfig(CONFIG_FILE, COMMON_CONFIG_FILE) then
-           LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server warning : Reload vm_path rejected. A complete restart is needed for it');
+           LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server warning : Reload vm_path rejected. A complete restart is needed for it.')
+         else
+           LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Server information : Configuration files were reloaded.');
        end;
 
        if StopRequested then

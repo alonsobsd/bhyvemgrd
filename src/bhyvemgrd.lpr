@@ -54,12 +54,25 @@ begin
   end;
 end;
 
+procedure StartSignalHandler;
+var
+  NewSignal, OldSignal: SigActionRec;
+begin
+  NewSignal.sa_handler := sigActionHandler(@SignalHandler);
+  FillChar(NewSignal.Sa_Mask, sizeof(NewSignal.Sa_Mask), #0);
+  NewSignal.Sa_Flags := 0;
+
+  fpSigAction(SIGINT,  @NewSignal, @OldSignal);
+  fpSigAction(SIGTERM, @NewSignal, @OldSignal);
+  fpSigAction(SIGHUP,  @NewSignal, @OldSignal);
+end;
+
 begin
   IsRunning:=True;
+  StopRequested:=False;
+  ReloadRequested:=False;
 
-  fpSignal(SIGTERM, @SignalHandler);
-  fpSignal(SIGINT, @SignalHandler);
-  fpSignal(SIGHUP,  @SignalHandler);
+  StartSignalHandler;
 
   {$IFDEF DEBUG}
     if FileExists('heap.trc') then

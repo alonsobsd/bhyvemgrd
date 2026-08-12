@@ -242,7 +242,6 @@ var
   i : Integer;
   VirtualMachine  : TVmInfo;
   VirtualMachineJson : TJSONObject;
-  EventType: String;
 begin
   i := FVirtualMachines.IndexOf(VmName);
 
