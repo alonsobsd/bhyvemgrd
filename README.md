@@ -26,6 +26,10 @@ The **vmm** and **nmdm** modules are other dependencies, but these can be loaded
 vmm_load=YES
 nmdm_load=YES
 ```
+or
+```
+# kldload vmm nmdm
+```
 
 Finally, the bhvemgrd needs two configuration files to run: **daemon.conf** and **common.conf**. The first is installed by bhyvemgrd port and the last one is created by [bhyvemgr](https://github.com/alonsobsd/bhyvemgr) GUI on first time and it only contains **vm_path** setting. The vm_path defines the path where virtual machines files are stored in your system.
 Both files are stored at **/usr/local/etc/bhyvemgrd** directory.
