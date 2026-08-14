@@ -19,13 +19,6 @@ mac_do_load=YES
 # ee /etc/sysctl.conf
 security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
 ```
-## mac_do/setcred/exec_paths setting (only for FreeBSD >= 1501501)
-
-```sh
-# kldload mac_do
-# sysctl security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
-# sysctl security.mac.do.exec_paths="/usr/bin/mdo:/usr/local/sbin/bhyvemgrd"
-```
 
 If you want to do these settings persistent, add the following lines:
 
@@ -36,12 +29,23 @@ mac_do_load=YES
 security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
 ```
 
-and an additional line if you system support exec_paths (FreeBSD >= 1501501)
+## mac_do/setcred/exec_paths setting (only for FreeBSD >= 1501501)
 
 ```sh
+# kldload mac_do
+# sysctl security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
+# sysctl security.mac.do.exec_paths="/usr/bin/mdo:/usr/local/sbin/bhyvemgrd"
+```
+If you want to do these settings persistent, add the following lines:
+
+```sh
+# ee /boot/loader.conf
+mac_do_load=YES
 # ee /etc/sysctl.conf
+security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
 security.mac.do.exec_paths="/usr/bin/mdo:/usr/local/sbin/bhyvemgrd"
 ```
+
 ## Additional modules
 
 The **vmm** and **nmdm** modules are other dependencies, but these can be loaded by bhyvemgrd automatically if previous settings are defined. Otherwise, you can put the following lines in your /boot/loader.conf:
