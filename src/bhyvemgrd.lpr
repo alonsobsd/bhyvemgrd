@@ -90,9 +90,9 @@ begin
     Halt;
   end;
 
-  if not (RootMode = 'mdo') then
+  if not (RootMode = 'mdo') and not ((GetOsreldate.ToInt64 >= 1501501) and (RootMode = 'setcred')) then
   begin
-    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RootMode value is not valid.');
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RootMode '+RootMode+' value is not valid.');
     Halt;
   end;
 

@@ -35,8 +35,10 @@ unit unit_util;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, BaseUnix;
 
+function ActivateSetcred():Boolean;
+function DeactivateSetcred():Boolean;
 function CheckKernelModule(Module: String): Boolean;
 function CheckSysctl(const Name: String):String;
 function CheckVmName(const Name: String): Boolean;
@@ -50,6 +52,54 @@ implementation
 
 uses
   Process, RegExpr, unit_global, unit_configuration;
+
+function setcred(flags: cuint; cred: Pointer; size: size_t): cint; cdecl; external 'c';
+
+function ActivateSetcred(): Boolean;
+var
+  cred: TSetCred;
+begin
+  Result:=True;
+
+  FillChar(cred, SizeOf(cred), 0);
+
+  cred.sc_uid   := 0;
+  cred.sc_ruid  := 0;
+  cred.sc_svuid := 0;
+
+  cred.sc_gid   := 0;
+  cred.sc_rgid  := 0;
+  cred.sc_svgid := 0;
+
+  if setcred(SETCREDF_UID or SETCREDF_RUID or SETCREDF_SVUID or SETCREDF_GID or
+  SETCREDF_RGID or SETCREDF_SVGID, @cred, SizeOf(cred)) < 0 then
+  begin
+    Result:=False;
+  end;
+end;
+
+function DeactivateSetcred(): Boolean;
+var
+  cred: TSetCred;
+begin
+  Result:=True;
+
+  FillChar(cred, SizeOf(cred), 0);
+
+  cred.sc_uid   := BHYVEMGRD_USER;
+  cred.sc_ruid  := BHYVEMGRD_USER;
+  cred.sc_svuid := BHYVEMGRD_USER;
+
+  cred.sc_gid   := BHYVEMGRD_GROUP;
+  cred.sc_rgid  := BHYVEMGRD_GROUP;
+  cred.sc_svgid := BHYVEMGRD_GROUP;
+
+  if setcred(SETCREDF_UID or SETCREDF_RUID or SETCREDF_SVUID or SETCREDF_GID or
+  SETCREDF_RGID or SETCREDF_SVGID, @cred, SizeOf(cred)) < 0 then
+  begin
+    Result:=False;
+  end;
+end;
 
 function CheckKernelModule(Module: String): Boolean;
 var

@@ -109,6 +109,7 @@ begin
   try
     LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd version : v'+ APP_VERSION);
     LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd website : '+ APP_WEBSITE);
+    LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Bhyvemgrd root_mode : '+ RootMode);
 
     if FileExists(SOCKET_FILE) then
       DeleteFile(SOCKET_FILE);

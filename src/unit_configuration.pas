@@ -44,7 +44,7 @@ function VmPath: String;
 implementation
 
 uses
-  IniFiles;
+  sysutils, IniFiles, unit_global;
 
 type
   TConfiguration = record
@@ -66,7 +66,7 @@ begin
 
   try
     FConfig.DebugMode := ConfigFile.ReadString('daemon','debug','no');
-    FConfig.RootMode := ConfigFile.ReadString('daemon','rootmode','mdo');
+    FConfig.RootMode := ConfigFile.ReadString('daemon','root_mode','mdo');
     FConfig.VmPath := CommonConfigFile.ReadString('common','vm_path','/usr/local/bhyvemgr');
   finally
     ConfigFile.Free;
@@ -86,7 +86,11 @@ begin
   CommonConfigFile := TIniFile.Create(CommonPathFile);
   try
     FConfig.DebugMode := ConfigFile.ReadString('daemon','debug','no');
-    FConfig.RootMode := ConfigFile.ReadString('daemon','rootmode','mdo');
+
+    if (GetOsreldate.ToInt64 >= 1501501) and (ConfigFile.ReadString('daemon','root_mode', EmptyStr) = 'setcred') then
+      FConfig.RootMode := ConfigFile.ReadString('daemon','root_mode','setcred')
+    else
+      FConfig.RootMode := ConfigFile.ReadString('daemon','root_mode','mdo');
 
     TmpVmPath:=CommonConfigFile.ReadString('common','vm_path','/usr/local/bhyvemgr');
 

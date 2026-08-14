@@ -34,6 +34,9 @@ unit unit_global;
 
 interface
 
+uses
+  Unix;
+
 type
   TVmState = (vmRebooted, vmPowerOff, vmHalted, vmTripleFault, vmExited, vmSuspended, vmRunning, vmException);
 
@@ -44,6 +47,19 @@ type
     ExitCode : Integer;
   end;
 
+  TSetCred = record
+    sc_uid: uid_t;
+    sc_ruid: uid_t;
+    sc_svuid: uid_t;
+    sc_gid: gid_t;
+    sc_rgid: gid_t;
+    sc_svgid: gid_t;
+    sc_pad: cuint;
+    sc_supp_groups_nb: cuint;
+    sc_supp_groups: ^gid_t;
+    sc_label: Pointer;
+  end;
+
 { General section }
 function GetOsreldate:string;
 procedure SetOsreldate(const Value:string);
@@ -52,6 +68,16 @@ procedure SetOsreldate(const Value:string);
 property Osreldate:string read GetOsreldate write SetOsreldate;
 
 const
+  { Setcred flags }
+  SETCREDF_UID      = $00000001;
+  SETCREDF_RUID     = $00000002;
+  SETCREDF_SVUID    = $00000004;
+  SETCREDF_GID      = $00000008;
+  SETCREDF_RGID     = $00000010;
+  SETCREDF_SVGID    = $00000020;
+  { User and group ids }
+  BHYVEMGRD_USER = 833;
+  BHYVEMGRD_GROUP = 833;
   { Program paths }
   BHYVE_CMD = '/usr/sbin/bhyve';
   BHYVECTL_CMD  = '/usr/sbin/bhyvectl';

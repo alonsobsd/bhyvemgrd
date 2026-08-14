@@ -69,21 +69,39 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   BridgeName := Params.Get('bridge','');
   DeviceName := Params.Get('device','');
 
-  parameters:=[IFCONFIG_CMD, BridgeName, 'addm', DeviceName];
-
-  if FileExists(root_cmd) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=IFCONFIG_CMD;
+    parameters:=[BridgeName, 'addm', DeviceName];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[IFCONFIG_CMD, BridgeName, 'addm', DeviceName];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : AttachDeviceToBridge : '+ DeviceName+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : AttachDeviceToBridge : '+ DeviceName+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -102,23 +120,41 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   Path := Params.Get('path','');
   Mode := Params.Get('mode','');
 
-  parameters:=[CHMOD_CMD, Mode, Path];
-
-  if FileExists(root_cmd) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=CHMOD_CMD;
+    parameters:=[Mode, Path];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[CHMOD_CMD, Mode, Path];
+  end;
 
-    if not status then
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
     begin
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Chmod : '+ Path+' : '+output);
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+      begin
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : Chmod : '+ Path+' : '+output);
+      end;
     end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -137,24 +173,43 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
   root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   Path := Params.Get('path','');
   Username := Params.Get('username','root');
   Groupname := Params.Get('groupname','wheel');
 
-  parameters:=[CHOWN_CMD, UserName+':'+Groupname, Path];
-
-  if FileExists(root_cmd) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=CHOWN_CMD;
+    parameters:=[UserName+':'+Groupname, Path];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[CHOWN_CMD, UserName+':'+Groupname, Path];
+  end;
 
-    if not status then
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
     begin
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ChownDir : '+ Path+' : '+output);
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+      begin
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ChownDir : '+ Path+' : '+output);
+      end;
     end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -173,23 +228,41 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   DirMode := Params.Get('mode','');
   UserName := Params.Get('username','');
   GroupName := Params.Get('groupname','');
   DirectoryPath := Params.Get('directory','');
 
-  parameters:=[INSTALL_CMD, '-d', '-m', DirMode, '-o', UserName, '-g', GroupName, DirectoryPath];
-
-  if FileExists(INSTALL_CMD) and FileExists(root_cmd) and not DirectoryExists(DirectoryPath) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=INSTALL_CMD;
+    parameters:=['-d', '-m', DirMode, '-o', UserName, '-g', GroupName, DirectoryPath];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[INSTALL_CMD, '-d', '-m', DirMode, '-o', UserName, '-g', GroupName, DirectoryPath];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CreateDirectory : '+ DirectoryPath+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and not DirectoryExists(DirectoryPath) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CreateDirectory : '+ DirectoryPath+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -208,9 +281,10 @@ var
   output : String;
   parameters : TStringArray;
   status : Boolean;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   VmName := Params.Get('vmname','');
   DireType := Params.Get('diretype','');
@@ -221,19 +295,36 @@ begin
     'vtcon': DirectoryName:=  VmPath+'/'+VmName+'/vtcon';
   end;
 
-  parameters:=[RM_CMD];
+  if SetcredFlag then
+  begin
+    root_cmd:=RM_CMD;
+    parameters:=[];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[RM_CMD];
+  end;
 
   if Recursive then
     parameters:=parameters + ['-R'];
 
   parameters:=parameters + [DirectoryName];
 
-  if (FileExists(root_cmd) and DirectoryExists(DirectoryName) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr'))) then
-  begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RemoveDirectory : '+DirectoryName+' : '+output);
+    if (FileExists(root_cmd) and DirectoryExists(DirectoryName) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr'))) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RemoveDirectory : '+DirectoryName+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -251,21 +342,39 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   DeviceName := Params.Get('device','');
   VmName := Params.Get('vmname','');
 
-  parameters:=[IFCONFIG_CMD, DeviceName, 'create', 'descr', '"'+VmName+' VM"'];
-
-  if FileExists(root_cmd) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=IFCONFIG_CMD;
+    parameters:=[DeviceName, 'create', 'descr', '"'+VmName+' VM"'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[IFCONFIG_CMD, DeviceName, 'create', 'descr', '"'+VmName+' VM"'];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+VmName+' VM : CreateNetworkDevice : '+ DeviceName+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : '+VmName+' VM : CreateNetworkDevice : '+ DeviceName+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -283,20 +392,38 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   IfName := Params.Get('ifname','');
 
-  parameters:=[IFCONFIG_CMD, IfName, 'destroy'];
-
-  if FileExists(root_cmd) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=IFCONFIG_CMD;
+    parameters:=[IfName, 'destroy'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[IFCONFIG_CMD, IfName, 'destroy'];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyNetworkInterface : '+ IfName+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyNetworkInterface : '+ IfName+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -316,11 +443,11 @@ var
   rules_path : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
   anchor:=EmptyStr;
-
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   VmName := Params.Get('vmname','');
   RuleType := Params.Get('ruletype','');
@@ -334,14 +461,31 @@ begin
 
   rules_path:=VmPath+'/'+VmName+'/pf/'+RuleType+'.rules';
 
-  parameters:=[PFCTL_CMD, '-a', anchor, '-f', rules_path];
-
-  if FileExists(rules_path) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=PFCTL_CMD;
+    parameters:=['-a', anchor, '-f', rules_path];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[PFCTL_CMD, '-a', anchor, '-f', rules_path];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfLoadRules : '+ RuleType+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and FileExists(rules_path) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfLoadRules : '+ RuleType+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -361,12 +505,12 @@ var
   flush_type : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   anchor:=EmptyStr;
   flush_type:=EmptyStr;
   status:=False;
-
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   VmName := Params.Get('vmname','');
   RulesType := Params.Get('ruletype','');
@@ -394,14 +538,31 @@ begin
       end;
   end;
 
-  parameters:=[PFCTL_CMD, '-a', anchor, '-F', flush_type];
-
-  if FileExists(PFCTL_CMD) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=PFCTL_CMD;
+    parameters:=['-a', anchor, '-F', flush_type];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[PFCTL_CMD, '-a', anchor, '-F', flush_type];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfUnLoadRules : '+ RulesType+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : PfUnLoadRules : '+ RulesType+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -420,26 +581,44 @@ var
   parameters : TStringArray;
   status : Boolean;
   pid : Int64;
+  SetcredFlag : Boolean;
 begin
   status:=False;
+  SetcredFlag:= RootMode = 'setcred';
   pid:=-1;
-  root_cmd:=MDO_CMD;
 
   Pattern := Params.Get('pattern','');
 
-  parameters:=[PGREP_CMD, '-fo', Pattern];
-
-  if FileExists(root_cmd) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut, poUsePipes]);
+    root_cmd:=PGREP_CMD;
+    parameters:=['-fo', Pattern];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[PGREP_CMD, '-fo', Pattern];
+  end;
 
-    if status then
-      pid:=Trim(output).ToInt64
-    else
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
     begin
-      if not (output.IsEmpty) then
-        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : GetPidValue : '+output);
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut, poUsePipes]);
+
+      if status then
+        pid:=Trim(output).ToInt64
+      else
+      begin
+        if not (output.IsEmpty) then
+          LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : GetPidValue : '+output);
+      end;
     end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -457,21 +636,39 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   Signal := Params.Get('signal','');
   Pid := Params.Get('pid', '');
 
-  parameters:=[KILL_CMD, Signal, Pid];
-
-  if FileExists(KILL_CMD) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut, poUsePipes]);
+    root_cmd:=KILL_CMD;
+    parameters:=[Signal, Pid];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[KILL_CMD, Signal, Pid];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : KillPid : '+Pid+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut, poUsePipes]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : KillPid : '+Pid+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -489,22 +686,40 @@ var
   output : String;
   parameters : TStringArray;
   status : Boolean;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   Service := Params.Get('service','');
 
-  parameters:=[SERVICE_CMD, Service, 'reload'];
-
-  if (FileExists(SERVICE_CMD)) and (FileExists(root_cmd)) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=SERVICE_CMD;
+    parameters:=[Service, 'reload'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[SERVICE_CMD, Service, 'reload'];
+  end;
 
-    if status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : OK')
-    else
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : OK')
+      else
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : RestartService : '+Service+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -522,20 +737,38 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   VmName := Params.Get('vmname','');
 
-  parameters:=[BHYVECTL_CMD, '--vm='+VmName, '--destroy'];
-
-  if FileExists(BHYVECTL_CMD) and FileExists(root_cmd) and CheckVmName(VmName) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=BHYVECTL_CMD;
+    parameters:=['--vm='+VmName, '--destroy'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[BHYVECTL_CMD, '--vm='+VmName, '--destroy'];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyVirtualMachine : '+VmName+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and CheckVmName(VmName) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : DestroyVirtualMachine : '+VmName+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -555,9 +788,10 @@ var
   status : Boolean;
   parameters : TStringArray;
   options : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
   ZfsPath:=EmptyStr;
 
   VmName := Params.Get('vmname','');
@@ -575,15 +809,33 @@ begin
   if WithMountpoint then
     options:=options+['-o','mountpoint=/'+ZfsPath];
 
-  parameters:=[ZFS_CMD, 'create']+ options;
+  if SetcredFlag then
+  begin
+    root_cmd:=ZFS_CMD;
+    parameters:=['create']+ options;
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD, 'create']+ options;
+  end;
+
   parameters:=parameters+[ZfsPath];
 
-  if FileExists(root_cmd) and FileExists(zfs_cmd) and not DirectoryExists('/'+ZfsPath) and (VmPath.Contains('/bhyvemgr')) then
-  begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateDataset : '+  ZfsPath+' : '+output);
+    if FileExists(root_cmd) and not DirectoryExists('/'+ZfsPath) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateDataset : '+  ZfsPath+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -601,24 +853,41 @@ var
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
   output:=EmptyStr;
-
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   ZfsProperty := Params.Get('property','');
   ZfsValue := Params.Get('value','');
   ZfsPath := Params.Get('path','');
 
-  parameters:=[ZFS_CMD, 'set', ZfsProperty+'='+ZfsValue, ZfsPath];
-
-  if FileExists(ZFS_CMD) then
+  if SetcredFlag then
   begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+    root_cmd:=ZFS_CMD;
+    parameters:=['set', ZfsProperty+'='+ZfsValue, ZfsPath];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD, 'set', ZfsProperty+'='+ZfsValue, ZfsPath];
+  end;
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsSetPropertyValue : '+ ZfsProperty+'='+ZfsValue+' : '+ZfsPath+' : '+output);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsSetPropertyValue : '+ ZfsProperty+'='+ZfsValue+' : '+ZfsPath+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -631,17 +900,19 @@ end;
 
 function ZfsDestroy(Id : String; Params: TJSONObject): TJSONObject;
 var
-  ZfsPath, VmName, ZfsType, ZfsDevice, Recursive, Force : String;
+  ZfsPath, VmName, ZfsType, ZfsDevice : String;
+  Recursive, Force : Boolean;
   root_cmd : String;
   output : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
-  Recursive := Params.Get('recursive','');
-  Force := Params.Get('force','');
+  Recursive := Params.Get('recursive', false);
+  Force := Params.Get('force', false);
   VmName := Params.Get('vmname','');
   ZfsType := Params.Get('zfstype','');
   ZfsDevice := Params.Get('zfsdevice','');
@@ -651,22 +922,39 @@ begin
     'zvol': ZfsPath:=  VmPath.Remove(0,1)+'/'+VmName+'/'+ZfsDevice;
   end;
 
-  parameters:=[ZFS_CMD, 'destroy'];
+  if SetcredFlag then
+  begin
+    root_cmd:=ZFS_CMD;
+    parameters:=['destroy'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD, 'destroy'];
+  end;
 
-  if StrToBool(Recursive) then
+  if Recursive then
     parameters:=parameters + ['-r'];
 
-  if StrToBool(Force) then
+  if Force then
     parameters:=parameters + ['-f'];
 
   parameters:=parameters + [ZfsPath];
 
-  if FileExists(ZFS_CMD) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
-  begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsDestroy : '+ ZfsPath+' : '+output);
+    if FileExists(root_cmd) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsDestroy : '+ ZfsPath+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;
@@ -685,10 +973,10 @@ var
   sparse : String;
   status : Boolean;
   parameters : TStringArray;
+  SetcredFlag : Boolean;
 begin
   status:=False;
-
-  root_cmd:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
 
   VmName:= Params.Get('vmname', '');
   DiskName:= Params.Get('diskname', '');
@@ -702,15 +990,33 @@ begin
   else
     sparse:='-V';
 
-  parameters:=[ZFS_CMD,'create', sparse, ZfsVolSize, '-o','volmode=dev'];
+  if SetcredFlag then
+  begin
+    root_cmd:=ZFS_CMD;
+    parameters:=['create', sparse, ZfsVolSize, '-o','volmode=dev'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD,'create', sparse, ZfsVolSize, '-o','volmode=dev'];
+  end;
+
   parameters:=parameters+[ZfsPath];
 
-  if FileExists(root_cmd) and FileExists(ZFS_CMD) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
-  begin
-    status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+  try
+    if SetcredFlag then
+      ActivateSetcred();
 
-    if not status then
-      LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateZvol : '+ ZfsPath+' : '+output);
+    if FileExists(root_cmd) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateZvol : '+ ZfsPath+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
   end;
 
   Result := TJSONObject.Create;

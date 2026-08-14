@@ -82,7 +82,10 @@ var
   AppProcess: TProcess;
   I: Integer;
   AppProcessOutput: TStringList;
+  SetcredFlag : Boolean;
 begin
+  SetcredFlag:= RootMode = 'setcred';
+
   AppProcess := TProcess.Create(nil);
   AppProcessOutput:= TStringList.Create;
 
@@ -100,7 +103,13 @@ begin
 
   try
     try
+      if SetcredFlag then
+        ActivateSetcred();
+
       AppProcess.Execute;
+
+      if SetcredFlag then
+        DeactivateSetcred();
 
       AppPid:=AppProcess.ProcessID;
 
@@ -150,11 +159,26 @@ begin
 end;
 
 constructor VmThread.Create(const VmName : String);
+var
+  SetcredFlag : Boolean;
+  root_cmd : String;
 begin
-  AppName:=MDO_CMD;
+  SetcredFlag:= RootMode = 'setcred';
+
+  if SetcredFlag then
+  begin
+    root_cmd:=BHYVE_CMD;
+    AppParams:=['-k', Format('%s/%s/bhyve_config.conf', [VmPath, VmName])];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    AppParams:=[BHYVE_CMD, '-k', Format('%s/%s/bhyve_config.conf', [VmPath, VmName])];
+  end;
+
+  AppName:=root_cmd;
   AppVmName:=VmName;
   AppVmPath:=VmPath;
-  AppParams:=[BHYVE_CMD, '-k', Format('%s/%s/bhyve_config.conf', [VmPath, VmName])];
 
   inherited Create(True);
   FreeOnTerminate := true;
