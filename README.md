@@ -29,6 +29,13 @@ mac_do_load=YES
 security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
 ```
 
+Enable it editing daemon.conf file
+
+```sh
+# ee /usr/local/etc/bhyvemgrd/daemon.conf
+root_mode=mdo
+```
+
 ## mac_do/setcred/exec_paths setting (only for FreeBSD >= 1501501)
 
 ```sh
@@ -44,6 +51,13 @@ mac_do_load=YES
 # ee /etc/sysctl.conf
 security.mac.do.rules="uid=833>uid=0,gid=0,+gid=*"
 security.mac.do.exec_paths="/usr/bin/mdo:/usr/local/sbin/bhyvemgrd"
+```
+
+Enable it editing **daemon.conf** file
+
+```sh
+# ee /usr/local/etc/bhyvemgrd/daemon.conf
+root_mode=setcred
 ```
 
 ## Additional modules
