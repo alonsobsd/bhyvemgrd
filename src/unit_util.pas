@@ -40,6 +40,7 @@ uses
 function ActivateSetcred():Boolean;
 function DeactivateSetcred():Boolean;
 function CheckKernelModule(Module: String): Boolean;
+function CheckSnapshotSuffix(const Suffix: String): Boolean;
 function CheckSysctl(const Name: String):String;
 function CheckVmName(const Name: String): Boolean;
 function CheckVmRunning(const VmName: String): Integer;
@@ -117,6 +118,22 @@ begin
     else
       LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : CheckKernelModule : '+ Module+' : '+output);
   end;
+end;
+
+function CheckSnapshotSuffix(const Suffix: String): Boolean;
+var
+  RegText: TRegExpr;
+begin
+  Result:=False;
+
+  RegText := TRegExpr.Create('^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$');
+
+  if RegText.Exec(Suffix) then
+  begin
+    Result:=True;
+  end;
+
+  RegText.Free
 end;
 
 function CheckSysctl(const Name: String): String;

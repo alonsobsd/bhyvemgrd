@@ -1044,10 +1044,10 @@ begin
   VmName:= Params.Get('vmname', '');
   SnapshotSuffix:= Params.Get('suffix', '');
 
-  if not SnapshotSuffix.IsEmpty then
+  if not SnapshotSuffix.IsEmpty and CheckSnapshotSuffix(SnapshotSuffix) then
     SnapshotSuffix:='-'+SnapshotSuffix;
 
-  ZfsPath := VmPath.Remove(0,1)+'/'+VmName;
+  ZfsPath := VmPath.Remove(0,1)+'/'+VmName+'@'+FormatDateTime('YYYYMMDD-hhnnss', Now)+SnapshotSuffix;
 
   if SetcredFlag then
   begin
@@ -1060,7 +1060,7 @@ begin
     parameters:=[ZFS_CMD,'snapshot', '-r'];
   end;
 
-  parameters:=parameters+[ZfsPath+'@'+FormatDateTime('YYYYMMDD-hhnnss', Now)+SnapshotSuffix];
+  parameters:=parameters+[ZfsPath];
 
   try
     if SetcredFlag then
@@ -1177,7 +1177,7 @@ begin
       status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
 
       if not status then
-        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsRollbackSnapshot : ' + VmName + '@' + Snapshot +' : '+output);
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsRollbackSnapshot : ' + ZfsPath +' : '+output);
     end;
   finally
     if SetcredFlag then
