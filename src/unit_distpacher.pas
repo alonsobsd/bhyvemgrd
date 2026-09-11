@@ -99,12 +99,18 @@ begin
         Response := VmStop(Params);
       'zfs.create_dataset':
         Response := ZfsCreateDataset(Id, Params);
+      'zfs.create_snapshot':
+        Response := ZfsCreateSnapshot(Id, Params);
       'zfs.create_zvol':
         Response := ZfsCreateZvol(Id, Params);
       'zfs.set_property':
         Response := ZfsSetPropertyValue(Id, Params);
       'zfs.destroy':
         Response := ZfsDestroy(Id, Params);
+      'zfs.destroy_snapshot':
+        Response := ZfsDestroySnapshot(Id, Params);
+      'zfs.rollback_snapshot':
+        Response := ZfsRollbackSnapshot(Id, Params);
     else
       begin
         Response := TJSONObject.Create;

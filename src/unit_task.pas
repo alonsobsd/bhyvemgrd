@@ -56,6 +56,9 @@ function ZfsCreateDataset(Id : String; Params:TJSONObject):TJSONObject;
 function ZfsSetPropertyValue(Id : String; Params:TJSONObject):TJSONObject;
 function ZfsDestroy(Id : String; Params:TJSONObject):TJSONObject;
 function ZfsCreateZvol(Id : String; Params:TJSONObject):TJSONObject;
+function ZfsCreateSnapshot(Id : String; Params:TJSONObject):TJSONObject;
+function ZfsDestroySnapshot(Id : String; Params:TJSONObject):TJSONObject;
+function ZfsRollbackSnapshot(Id : String; Params:TJSONObject):TJSONObject;
 
 implementation
 
@@ -1025,5 +1028,164 @@ begin
   Result.Add('success',status);
   Result.Add('action', 'zfs.create_zvol');
 end;
+
+function ZfsCreateSnapshot(Id: String; Params: TJSONObject): TJSONObject;
+var
+  VmName, ZfsPath : String;
+  root_cmd : String;
+  output : String;
+  status : Boolean;
+  parameters : TStringArray;
+  SetcredFlag : Boolean;
+begin
+  status:=False;
+  SetcredFlag:= RootMode = 'setcred';
+
+  VmName:= Params.Get('vmname', '');
+
+  ZfsPath := VmPath.Remove(0,1)+'/'+VmName;
+
+  if SetcredFlag then
+  begin
+    root_cmd:=ZFS_CMD;
+    parameters:=['snapshot', '-r'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD,'snapshot', '-r'];
+  end;
+
+  parameters:=parameters+[ZfsPath+'@'+FormatDateTime('YYYYMMDD-hhnnss', Now)];
+
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsCreateSnapshot : '+ ZfsPath+' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
+  end;
+
+  Result := TJSONObject.Create;
+  Result.Add('id',Id);
+  Result.Add('type', 'task');
+  Result.Add('success',status);
+  Result.Add('action', 'zfs.create_snapshot');
+end;
+
+function ZfsDestroySnapshot(Id: String; Params: TJSONObject): TJSONObject;
+var
+  VmName, Snapshot, ZfsPath : String;
+  root_cmd : String;
+  output : String;
+  status : Boolean;
+  parameters : TStringArray;
+  SetcredFlag : Boolean;
+begin
+  status:=False;
+  SetcredFlag:= RootMode = 'setcred';
+
+  VmName:= Params.Get('vmname', '');
+  Snapshot:= Params.Get('snapshot', '');
+
+  ZfsPath := VmPath.Remove(0,1)+'/'+VmName+'@'+Snapshot;
+
+  if SetcredFlag then
+  begin
+    root_cmd:=ZFS_CMD;
+    parameters:=['destroy', '-r'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD,'destroy', '-r'];
+  end;
+
+  parameters:=parameters+[ZfsPath];
+
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsDestroySnapshot : ' + VmName + '@' + Snapshot +' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
+  end;
+
+  Result := TJSONObject.Create;
+  Result.Add('id',Id);
+  Result.Add('type', 'task');
+  Result.Add('success',status);
+  Result.Add('action', 'zfs.destroy_snapshot');
+end;
+
+function ZfsRollbackSnapshot(Id: String; Params: TJSONObject): TJSONObject;
+var
+  VmName, Snapshot, ZfsPath : String;
+  root_cmd : String;
+  output : String;
+  status : Boolean;
+  parameters : TStringArray;
+  SetcredFlag : Boolean;
+begin
+  status:=False;
+  SetcredFlag:= RootMode = 'setcred';
+
+  VmName:= Params.Get('vmname', '');
+  Snapshot:= Params.Get('snapshot', '');
+
+  ZfsPath := VmPath.Remove(0,1)+'/'+VmName+'@'+Snapshot;
+
+  if SetcredFlag then
+  begin
+    root_cmd:=ZFS_CMD;
+    parameters:=['rollback', '-r'];
+  end
+  else
+  begin
+    root_cmd:=MDO_CMD;
+    parameters:=[ZFS_CMD,'rollback', '-r'];
+  end;
+
+  parameters:=parameters+[ZfsPath];
+
+  try
+    if SetcredFlag then
+      ActivateSetcred();
+
+    if FileExists(root_cmd) and CheckVmName(VmName) and (VmPath.Contains('/bhyvemgr')) and not (CheckVmRunning(VmName) > 0) then
+    begin
+      status:=RunCommand(root_cmd, parameters, output, [poStderrToOutPut]);
+
+      if not status then
+        LogMessage('['+FormatDateTime('DD-MM-YYYY HH:NN:SS', Now)+'] : ZfsRollbackSnapshot : ' + VmName + '@' + Snapshot +' : '+output);
+    end;
+  finally
+    if SetcredFlag then
+      DeactivateSetcred();
+  end;
+
+  Result := TJSONObject.Create;
+  Result.Add('id',Id);
+  Result.Add('type', 'task');
+  Result.Add('success',status);
+  Result.Add('action', 'zfs.rollback_snapshot');
+end;
+
 end.
 
