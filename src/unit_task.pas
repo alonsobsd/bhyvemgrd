@@ -1031,7 +1031,7 @@ end;
 
 function ZfsCreateSnapshot(Id: String; Params: TJSONObject): TJSONObject;
 var
-  VmName, ZfsPath : String;
+  VmName, SnapshotSuffix, ZfsPath : String;
   root_cmd : String;
   output : String;
   status : Boolean;
@@ -1042,6 +1042,10 @@ begin
   SetcredFlag:= RootMode = 'setcred';
 
   VmName:= Params.Get('vmname', '');
+  SnapshotSuffix:= Params.Get('suffix', '');
+
+  if not SnapshotSuffix.IsEmpty then
+    SnapshotSuffix:='-'+SnapshotSuffix;
 
   ZfsPath := VmPath.Remove(0,1)+'/'+VmName;
 
@@ -1056,7 +1060,7 @@ begin
     parameters:=[ZFS_CMD,'snapshot', '-r'];
   end;
 
-  parameters:=parameters+[ZfsPath+'@'+FormatDateTime('YYYYMMDD-hhnnss', Now)];
+  parameters:=parameters+[ZfsPath+'@'+FormatDateTime('YYYYMMDD-hhnnss', Now)+SnapshotSuffix];
 
   try
     if SetcredFlag then
